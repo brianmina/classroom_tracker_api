@@ -53,7 +53,7 @@ substitutions:
   _DEPLOY_REGION: us-east4
   _GCR_HOSTNAME: us.gcr.io
   _PLATFORM: managed
-  _SERVICE_NAME: run-sql
+  _SERVICE_NAME: classroom-tracker
   _LABELS: gcb-trigger-id=06126323-b47d-4d26-931d-6eed77a8c790
   _TRIGGER_ID: 06126323-b47d-4d26-931d-6eed77a8c790
 tags:
