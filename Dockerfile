@@ -2,22 +2,24 @@
 
 FROM python:3.11
 
+WORKDIR /code
+
 # Copy application dependency manifests to the container image.
 # Copying this separately prevents re-running pip install on every code change.
-COPY requirements.txt ./
+COPY ./requirements.txt /code/requirements.txt
 
 # Install production dependencies.
-RUN set -ex; \
-    pip install -r requirements.txt; \
-    pip install gunicorn
+RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
 
-# Copy local code to the container image.
-ENV APP_HOME /app
-WORKDIR $APP_HOME
-COPY . ./
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "80"]
 
-# Run the web service on container startup. Here we use the gunicorn
-# webserver, with one worker process and 8 threads.
-# For environments with multiple CPU cores, increase the number of workers
-# to be equal to the cores available.
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 -k uvicorn.workers.UvicornWorker main:app
+# # Copy local code to the container image.
+# ENV APP_HOME /app
+# WORKDIR $APP_HOME
+# COPY . ./
+
+# # Run the web service on container startup. Here we use the gunicorn
+# # webserver, with one worker process and 8 threads.
+# # For environments with multiple CPU cores, increase the number of workers
+# # to be equal to the cores available.
+# CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 -k uvicorn.workers.UvicornWorker main:app
