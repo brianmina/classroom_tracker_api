@@ -59,4 +59,4 @@ substitutions:
 tags:
   - gcp-cloud-build-deploy-cloud-run
   - gcp-cloud-build-deploy-cloud-run-managed
-  - run-sql
+  - classroom-tracker
