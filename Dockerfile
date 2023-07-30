@@ -16,4 +16,4 @@ RUN set -ex; \
     pip install -r requirements.txt
 
 
-CMD ["uvicorn", "app.main:app", "--host=0.0.0.0", "--reload", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host=0.0.0.0", "--reload", "--port", "8080"]
