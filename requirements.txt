@@ -1,2 +1,8 @@
 fastapi~=0.100.0
 uvicorn~=0.23.1
+psycopg2-pool
+psycopg2-binary
+sqlalchemy~=2.0.19
+sqlalchemy-cockroachdb
+pydantic~=2.0.3
+python-dotenv~=1.0.0
