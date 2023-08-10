@@ -11,7 +11,7 @@ DB_PASS = os.environ.get("DB_PASS")
 ROOT_CERT = os.environ.get("ROOT_CERT")
 
 SQLALCHEMY_DATABASE_URL = f'cockroachdb+psycopg2://{DB_USER}:{DB_PASS}@spark-clam-4749.g8z.cockroachlabs.cloud:26257/classroom_tracker' \
-                          f'?sslmode=require@sslcert={ROOT_CERT}'
+                          f'?sslmode=require&sslcert={ROOT_CERT}'
 
 engine = create_engine(
     # SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
