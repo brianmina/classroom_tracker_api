@@ -92,6 +92,10 @@ async def read_students(db: Session = Depends(get_db)) -> list[Student]:
 async def view_classroom(db: Session = Depends(get_db)) -> list[Student]:
     pass
 
+@app.post("/students/{student_id}")
+async def scan_student(student_id: int, db: Session = Depends(get_db)) -> Student:
+    return crud.create_scan(db,student_id)
+
 # create a function that takes an integer (number of timestamps) and returns a boolean (is_present)
 # based on the number of timestamps
 # e.g. 1 timestamp ->  student entered -> return True

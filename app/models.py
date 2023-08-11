@@ -1,7 +1,7 @@
 from datetime import date
 from typing import List
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, DateTime, select, func, and_
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, DateTime, select, func, and_, FetchedValue
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, Mapped, column_property, object_session
 
@@ -24,8 +24,8 @@ class CodeScan(Base):
     __tablename__ = "code_scans"
     id = Column(Integer, primary_key=True, index=True)
     student = Column(Integer, ForeignKey("students.id"))
-    timestamp = Column(DateTime)
-    date = Column(Date, index=True)
+    timestamp = Column(DateTime, server_default=FetchedValue())
+    date = Column(Date, index=True, server_default=FetchedValue())
 
     scanned_student = relationship("Student")
     # scanned_student = relationship("Student", back_populates="scans")
