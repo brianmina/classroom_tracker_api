@@ -1,15 +1,66 @@
+import sys
 from datetime import datetime
 from enum import Enum
+from logging import DEBUG
+from pathlib import Path
+from pprint import pformat
+from sys import stdout
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
+from google.auth import default
+from loguru._defaults import LOGURU_FORMAT
 from sqlalchemy.orm import Session
+from starlette.routing import Match
 
 from app import crud
 from app.database import SessionLocal
 from app.schemas import Student
+import google.cloud.logging
+from google.cloud.logging_v2.handlers import CloudLoggingHandler
+from loguru import logger
+# import logging
 
-app = FastAPI()
+from app.server_logging import init_logging
 
+config_path = Path(__file__).with_name("logging_config.json")
+
+
+
+
+
+"""
+GCP logging
+"""
+def setup_logger(
+    name: str = "my_logger",
+    level: int = DEBUG,
+    project_id: str = "avian-serenity-393711",
+):
+    logger.remove()
+
+    # Local Logging (GKE, GCE, ...):
+    logger.add(stdout, level=level)
+
+    # Cloud Logging:
+    credentials, _ = default(
+        quota_project_id=project_id,
+        scopes=["https://www.googleapis.com/auth/cloud-platform"],
+    )
+    client = google.cloud.logging.Client(project=project_id, credentials=credentials)
+    handler = CloudLoggingHandler(client, name=name)
+    handler.setLevel(level=level)
+    logger.add(handler)
+
+def create_app() -> FastAPI:
+    app = FastAPI(
+        name="ClassroomTracker",
+        version="0.2.0"
+    )
+    # logger = CustomizeLogger.make_logger(config_path)
+    app.logger = logger
+    return app
+
+app = create_app()
 
 def get_db():
     db = SessionLocal()
@@ -17,52 +68,42 @@ def get_db():
         yield db
     finally:
         db.close()
+    #
+    # response = await call_next(request)
+    # return response
+
 
 @app.get("/students/{student_id}")
-def read_student(student_id: int, q: str | None = None) -> Student:
-    if student_id == 1:
-        student_name = "karl"
-    else:
-        student_name = "brian"
-    student_x =  Student(id = student_id, first_name = student_name, last_name ="real last name", is_present = False)
-    return student_x
+async def read_student(student_id: int, db: Session = Depends(get_db)) -> Student:
+    return crud.get_student(db, student_id)
+
+@app.get("/students/{student_id}/detail")
+async def read_student_detail(student_id: int, db: Session = Depends(get_db)) -> Student:
+    return crud.get_student_detail(db, student_id)
 
 
 @app.get('/students')
-def read_students(db: Session = Depends(get_db)) -> list[Student]:
+async def read_students(db: Session = Depends(get_db)) -> list[Student]:
     student_list = crud.get_students(db)
-    # student_list = [
-    #     Student(id=10, first_name='Kevin', is_present=True, last_modified=datetime.now()),
-    #     Student(id=9, first_name='Carol', last_name='Gutierrez', is_present=False, last_modified=datetime.now()),
-    #     Student(id=8, first_name='Felipe', last_name='Mina', is_present=True, last_modified=datetime(year=2020, month=1, day=31, hour=13, minute=14, second=31)),
-    #     Student(id=7, first_name='Sofia', last_name='Smith', is_present=True, last_modified=datetime(year=2020, month=1, day=31, hour=13, minute=14, second=31)),
-    # ]
     return student_list
 
 
 @app.get('/classroom')
-def view_classroom() -> list[Student]:
-    student_list = [
-        Student(id=10, first_name='Kevin', is_present=True, last_modified=datetime.now()),
-        Student(id=9, first_name='Carol', last_name='Gutierrez', is_present=False, last_modified=datetime.now()),
-        Student(id=8, first_name='Felipe', last_name='Mina', is_present=True,
-                    last_modified=datetime(year=2020, month=1, day=31, hour=13, minute=14, second=31)),
-        Student(id=7, first_name='Sofia', last_name='Smith', is_present=True,
-                    last_modified=datetime(year=2020, month=1, day=31, hour=13, minute=14, second=31)),
-    ]
-    return student_list
+async def view_classroom(db: Session = Depends(get_db)) -> list[Student]:
+    pass
 
-
-# create a function that takes an integer (number of timestamps) and returns a boolean (is_present) based on the number of timestamps
+# create a function that takes an integer (number of timestamps) and returns a boolean (is_present)
+# based on the number of timestamps
 # e.g. 1 timestamp ->  student entered -> return True
 # e.g. 0 timestamps -> return False
 # def find_student(number_of_timestamps: int) -> bool:
 #     pass
-#
+
+
 # def print_name(student: Student):
 #     #print student name from student object
 #     pass
-#
+
 # if __name__ == "__main__":
 #     bob = Student(id=4, first_name="bob", last_name="jones", is_present=False)
 #     print_name(bob)
@@ -76,5 +117,3 @@ class Color(str, Enum):
 def get_colors_numbers(color_name: Color):
     # return color_name + " is " +  str(len(color_name)) + " letters long"
     return f"{color_name} is {str(len(color_name))} letters long"
-
-

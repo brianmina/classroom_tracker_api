@@ -1,10 +1,15 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, lazyload
 
 from . import models, schemas
 
-def get_student(db: Session, student_id: int):
-    return db.query(models.Student).filter(models.Student.id == student_id).first()
 
+def get_student(db: Session, student_id: int):
+    student = db.query(models.Student).filter(models.Student.id == student_id).first()
+    return student
 
 def get_students(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Student).offset(skip).limit(limit).all()
+
+
+def get_student_detail(db: Session, student_id: int):
+    return db.query(models.StudentDetail).filter(models.StudentDetail.id == student_id).first()
