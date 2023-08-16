@@ -18,11 +18,34 @@ from app.schemas import Student
 import google.cloud.logging
 from google.cloud.logging_v2.handlers import CloudLoggingHandler
 from loguru import logger
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
+import secure
+
+from app.security.dependencies import validate_token
+from app.security.config import settings
+
+
 # import logging
 
 from app.server_logging import init_logging
 
 config_path = Path(__file__).with_name("logging_config.json")
+
+csp = secure.ContentSecurityPolicy().default_src("'self'").frame_ancestors("'none'")
+hsts = secure.StrictTransportSecurity().max_age(31536000).include_subdomains()
+referrer = secure.ReferrerPolicy().no_referrer()
+cache_value = secure.CacheControl().no_cache().no_store().max_age(0).must_revalidate()
+x_frame_options = secure.XFrameOptions().deny()
+
+secure_headers = secure.Secure(
+    csp=csp,
+    hsts=hsts,
+    referrer=referrer,
+    cache=cache_value,
+    xfo=x_frame_options,
+)
 
 
 
@@ -54,13 +77,31 @@ def setup_logger(
 def create_app() -> FastAPI:
     app = FastAPI(
         name="ClassroomTracker",
-        version="0.2.0"
+        version="0.3.0",
+        # docs_url="/docs"
     )
     # logger = CustomizeLogger.make_logger(config_path)
     app.logger = logger
     return app
 
 app = create_app()
+
+# @app.middleware("http")
+# async def set_secure_headers(request, call_next):
+#     response = await call_next(request)
+#     secure_headers.framework.fastapi(response)
+#     return response
+#
+#
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=[settings.client_origin_url],
+#     allow_methods=["GET"],
+#     allow_headers=["Authorization", "Content-Type"],
+#     max_age=86400,
+# )
+
+
 
 def get_db():
     db = SessionLocal()
@@ -72,8 +113,12 @@ def get_db():
     # response = await call_next(request)
     # return response
 
-
 @app.get("/students/{student_id}")
+async def read_student(student_id: int, db: Session = Depends(get_db)) -> Student:
+    return crud.get_student(db, student_id)
+
+
+@app.get("/protected_students/{student_id}", dependencies=[Depends(validate_token)])
 async def read_student(student_id: int, db: Session = Depends(get_db)) -> Student:
     return crud.get_student(db, student_id)
 
