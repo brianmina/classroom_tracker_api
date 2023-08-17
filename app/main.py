@@ -10,6 +10,7 @@ from fastapi import FastAPI, Depends, Request
 from google.auth import default
 from loguru._defaults import LOGURU_FORMAT
 from sqlalchemy.orm import Session
+from starlette.middleware.cors import CORSMiddleware
 from starlette.routing import Match
 
 from app import crud
@@ -24,17 +25,15 @@ from app.server_logging import init_logging
 
 config_path = Path(__file__).with_name("logging_config.json")
 
-
-
-
-
 """
 GCP logging
 """
+
+
 def setup_logger(
-    name: str = "my_logger",
-    level: int = DEBUG,
-    project_id: str = "avian-serenity-393711",
+        name: str = "my_logger",
+        level: int = DEBUG,
+        project_id: str = "avian-serenity-393711",
 ):
     logger.remove()
 
@@ -51,6 +50,7 @@ def setup_logger(
     handler.setLevel(level=level)
     logger.add(handler)
 
+
 def create_app() -> FastAPI:
     app = FastAPI(
         name="ClassroomTracker",
@@ -60,7 +60,17 @@ def create_app() -> FastAPI:
     app.logger = logger
     return app
 
+
 app = create_app()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 def get_db():
     db = SessionLocal()
@@ -77,6 +87,7 @@ def get_db():
 async def read_student(student_id: int, db: Session = Depends(get_db)) -> Student:
     return crud.get_student(db, student_id)
 
+
 @app.get("/students/{student_id}/detail")
 async def read_student_detail(student_id: int, db: Session = Depends(get_db)) -> Student:
     return crud.get_student_detail(db, student_id)
@@ -92,9 +103,11 @@ async def read_students(db: Session = Depends(get_db)) -> list[Student]:
 async def view_classroom(db: Session = Depends(get_db)) -> list[Student]:
     pass
 
+
 @app.post("/students/{student_id}")
 async def scan_student(student_id: int, db: Session = Depends(get_db)) -> Student:
-    return crud.create_scan(db,student_id)
+    return crud.create_scan(db, student_id)
+
 
 # create a function that takes an integer (number of timestamps) and returns a boolean (is_present)
 # based on the number of timestamps
