@@ -65,7 +65,14 @@ app = create_app()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:6060",
+        "http://localhost",
+        "https://classroom-tracker-gu6t24lssq-uk.a.run.app",
+        "http://localhost:6060",
+        "*"
+
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
