@@ -103,6 +103,8 @@ async def read_student_detail(student_id: int, db: Session = Depends(get_db)) ->
 @app.get('/students')
 async def read_students(db: Session = Depends(get_db)) -> list[Student]:
     student_list = crud.get_students(db)
+    for student in student_list:
+        student.lastname = student.lastname[:2]
     return student_list
 
 
