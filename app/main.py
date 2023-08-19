@@ -70,6 +70,7 @@ app.add_middleware(
         "http://localhost",
         "https://classroom-tracker-gu6t24lssq-uk.a.run.app",
         "http://localhost:6060",
+        "https://brianmina.github.io",
         "*"
 
     ],
@@ -103,9 +104,9 @@ async def read_student_detail(student_id: int, db: Session = Depends(get_db)) ->
 @app.get('/students')
 async def read_students(db: Session = Depends(get_db)) -> list[Student]:
     student_list = crud.get_students(db)
-    # for student in student_list:
-    #     # TODO: remove after security added
-    #     student.lastname = student.lastname[:2]
+    for student in student_list:
+        # TODO: remove after security added
+        student.lastname = student.lastname[:2]
     return student_list
 
 
