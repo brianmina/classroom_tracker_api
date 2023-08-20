@@ -19,14 +19,9 @@ def get_student_detail(db: Session, student_id: int):
 
 
 def create_scan(db: Session, student_id: int):
-
     db_scan = models.CodeScan(student=student_id)
     db.add(db_scan)
-    try:
-        db.commit()
-    except IntegrityError as e:
-        raise ClassroomTrackerException(f"Student QR code {student_id} not found", 404)
-
+    db.commit()
     db.refresh(db_scan)
     return db_scan.scanned_student
 
