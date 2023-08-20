@@ -1,27 +1,22 @@
-import sys
-from datetime import datetime
 from enum import Enum
 from logging import DEBUG
 from pathlib import Path
-from pprint import pformat
 from sys import stdout
 
 from fastapi import FastAPI, Depends, Request
 from google.auth import default
-from loguru._defaults import LOGURU_FORMAT
 from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
-from starlette.routing import Match
+from starlette.responses import JSONResponse
 
 from app import crud
 from app.database import SessionLocal
+from app.exception import ClassroomTrackerException
 from app.schemas import Student
 import google.cloud.logging
 from google.cloud.logging_v2.handlers import CloudLoggingHandler
 from loguru import logger
 # import logging
-
-from app.server_logging import init_logging
 
 config_path = Path(__file__).with_name("logging_config.json")
 
@@ -91,6 +86,14 @@ def get_db():
     # return response
 
 
+@app.exception_handler(ClassroomTrackerException)
+async def unicorn_exception_handler(request: Request, exc: ClassroomTrackerException):
+    return JSONResponse(
+        status_code=exc.response_code,
+        content={"message": exc.message},
+    )
+
+
 @app.get("/students/{student_id}")
 async def read_student(student_id: int, db: Session = Depends(get_db)) -> Student:
     return crud.get_student(db, student_id)
@@ -116,8 +119,16 @@ async def view_classroom(db: Session = Depends(get_db)) -> list[Student]:
 
 
 @app.post("/students/{student_id}")
-async def scan_student(student_id: int, db: Session = Depends(get_db)) -> Student:
-    return crud.create_scan(db, student_id)
+async def scan_student(student_id: int, db: Session = Depends(get_db)):
+    found_student = crud.create_scan(db, student_id)
+    # if not found_student:
+    #     return JSONResponse(
+    #         status_code=404,
+    #         content={
+    #             "message": f"student id {student_id} not found"
+    #         }
+    #     )
+    return found_student
 
 
 # create a function that takes an integer (number of timestamps) and returns a boolean (is_present)

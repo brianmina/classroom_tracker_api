@@ -1,6 +1,8 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, lazyload
 
 from . import models, schemas
+from .exception import ClassroomTrackerException
 
 
 def get_student(db: Session, student_id: int):
@@ -17,8 +19,14 @@ def get_student_detail(db: Session, student_id: int):
 
 
 def create_scan(db: Session, student_id: int):
+
     db_scan = models.CodeScan(student=student_id)
     db.add(db_scan)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError as e:
+        raise ClassroomTrackerException(f"Student QR code {student_id} not found", 404)
+
     db.refresh(db_scan)
     return db_scan.scanned_student
+
