@@ -7,7 +7,7 @@ from fastapi import FastAPI, Depends, Request
 from google.auth import default
 from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 
 from app import crud
 from app.database import SessionLocal
@@ -107,9 +107,6 @@ async def read_student_detail(student_id: int, db: Session = Depends(get_db)) ->
 @app.get('/students')
 async def read_students(db: Session = Depends(get_db)) -> list[Student]:
     student_list = crud.get_students(db)
-    for student in student_list:
-        # TODO: remove after security added
-        student.last_name = student.last_name[:2]
     return student_list
 
 
@@ -129,6 +126,18 @@ async def scan_student(student_id: int, db: Session = Depends(get_db)) -> Studen
     #         }
     #     )
     return found_student
+
+
+@app.get("/readiness")
+def is_ready() :
+    return Response('', status_code=200)
+    # if not found_student:
+    #     return JSONResponse(
+    #         status_code=404,
+    #         content={
+    #             "message": f"student id {student_id} not found"
+    #         }
+    #     )
 
 
 # create a function that takes an integer (number of timestamps) and returns a boolean (is_present)
