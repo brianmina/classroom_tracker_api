@@ -1,4 +1,3 @@
-from enum import Enum
 from logging import DEBUG
 from pathlib import Path
 from sys import stdout
@@ -16,7 +15,6 @@ from app.schemas import Student
 import google.cloud.logging
 from google.cloud.logging_v2.handlers import CloudLoggingHandler
 from loguru import logger
-# import logging
 
 config_path = Path(__file__).with_name("logging_config.json")
 
@@ -128,6 +126,16 @@ async def scan_student(student_id: int, db: Session = Depends(get_db)) -> Studen
     return found_student
 
 
+@app.post('/students/{student_id}/points')
+async def add_points(student_id: int, point_change: int, db: Session = Depends(get_db) ):
+    #get student - need to know point # 889506971053883393
+    current_student = crud.get_student(db, student_id)
+    #add new points to student
+    current_student.points = current_student.points + point_change
+    #update student  in db
+    crud.update_student(db, current_student)
+    return current_student
+
 @app.get("/readiness")
 def is_ready() :
     return Response('', status_code=200)
@@ -155,13 +163,15 @@ def is_ready() :
 # if __name__ == "__main__":
 #     bob = Student(id=4, first_name="bob", last_name="jones", is_present=False)
 #     print_name(bob)
-class Color(str, Enum):
-    red = 'red'
-    blue = 'blue'
-    yellow = 'yellow'
+# class Color(str, Enum):
+#     red = 'red'
+#     blue = 'blue'
+#     yellow = 'yellow'
+#
+#
+# @app.get('/colors/{color_name}')
+# def get_colors_numbers(color_name: Color):
+#     # return color_name + " is " +  str(len(color_name)) + " letters long"
+#     return f"{color_name} is {str(len(color_name))} letters long"
 
 
-@app.get('/colors/{color_name}')
-def get_colors_numbers(color_name: Color):
-    # return color_name + " is " +  str(len(color_name)) + " letters long"
-    return f"{color_name} is {str(len(color_name))} letters long"
