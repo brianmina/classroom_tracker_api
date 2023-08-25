@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, time, datetime
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, DateTime, select, func, and_, FetchedValue
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, Mapped, column_property, object_session
@@ -15,6 +15,23 @@ class CodeScan(Base):
 
     scanned_student = relationship("Student")
     # scanned_student = relationship("Student", back_populates="scans")
+
+
+end_times = {
+    1: time(11, 0),
+    2: time(11, 0),
+    3: time(12, 35),
+    4: time(12, 35),
+    5: time(14, 45),
+    6: time(14, 45),
+    7: time(16, 20),
+    8: time(16, 20),
+
+}
+
+
+def check_is_period(period: int):
+    return datetime.now().time() < end_times.get(period)
 
 
 class Student(Base):
@@ -54,7 +71,7 @@ class Student(Base):
 
     @hybrid_property
     def is_present(self):
-        return self.scan_count_today % 2 == 1
+        return self.scan_count_today % 2 == 1 and check_is_period(self.period)
 
 
 class StudentDetail(Student):

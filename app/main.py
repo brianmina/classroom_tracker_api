@@ -118,13 +118,6 @@ async def view_classroom(db: Session = Depends(get_db)) -> list[Student]:
 @app.post("/students/{student_id}")
 async def scan_student(student_id: int, db: Session = Depends(get_db)) -> Student:
     found_student = crud.create_scan(db, student_id)
-    # if not found_student:
-    #     return JSONResponse(
-    #         status_code=404,
-    #         content={
-    #             "message": f"student id {student_id} not found"
-    #         }
-    #     )
     return found_student
 
 
