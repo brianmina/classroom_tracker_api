@@ -1,4 +1,6 @@
 from datetime import date, time, datetime
+from zoneinfo import ZoneInfo
+
 from sqlalchemy import Column, Integer, String, ForeignKey, Date, DateTime, select, func, and_, FetchedValue
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, Mapped, column_property, object_session
@@ -18,20 +20,20 @@ class CodeScan(Base):
 
 
 end_times = {
-    1: time(11, 0),
-    2: time(11, 0),
-    3: time(12, 35),
-    4: time(12, 35),
-    5: time(14, 45),
-    6: time(14, 45),
-    7: time(16, 20),
-    8: time(16, 20),
+    1: time(11, 0, tzinfo=ZoneInfo("America/New_York")),
+    2: time(11, 0, tzinfo=ZoneInfo("America/New_York")),
+    3: time(12, 35, tzinfo=ZoneInfo("America/New_York")),
+    4: time(12, 35, tzinfo=ZoneInfo("America/New_York")),
+    5: time(14, 45, tzinfo=ZoneInfo("America/New_York")),
+    6: time(14, 45, tzinfo=ZoneInfo("America/New_York")),
+    7: time(16, 20, tzinfo=ZoneInfo("America/New_York")),
+    8: time(16, 20, tzinfo=ZoneInfo("America/New_York")),
 
 }
 
 
 def check_is_period(period: int):
-    return datetime.now().time() < end_times.get(period)
+    return datetime.now(tz=ZoneInfo("America/New_York")).time() < end_times.get(period)
 
 
 class Student(Base):
