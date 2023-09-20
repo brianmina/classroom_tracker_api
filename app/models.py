@@ -53,7 +53,7 @@ class Student(Base):
         .where(
             and_(
                 CodeScan.student == id,
-                CodeScan.date == date.today()
+                CodeScan.date == datetime.utcnow().date()
             )
         )
         .scalar_subquery()
