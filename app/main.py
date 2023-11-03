@@ -122,7 +122,7 @@ async def scan_student(student_id: int, response: Response, db: Session = Depend
     found_student = crud.create_scan(db, student_id)
     # server_time = datetime.now(tz=ZoneInfo("America/New_York")).time()
     # response.headers["X-server-time"] = server_time
-    response.headers["X-server-time"] = datetime.now(tz=ZoneInfo("America/New_York")).time()
+    response.headers["X-server-time"] = str(datetime.now(tz=ZoneInfo("America/New_York")).time())
     return found_student
 
 
