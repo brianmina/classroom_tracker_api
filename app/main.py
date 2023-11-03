@@ -1,7 +1,9 @@
+from datetime import datetime
 from enum import Enum
 from logging import DEBUG
 from pathlib import Path
 from sys import stdout
+from zoneinfo import ZoneInfo
 
 from fastapi import FastAPI, Depends, Request
 from google.auth import default
@@ -116,8 +118,11 @@ async def view_classroom(db: Session = Depends(get_db)) -> list[Student]:
 
 
 @app.post("/students/{student_id}")
-async def scan_student(student_id: int, db: Session = Depends(get_db)) -> Student:
+async def scan_student(student_id: int, response: Response, db: Session = Depends(get_db)) -> Student:
     found_student = crud.create_scan(db, student_id)
+    # server_time = datetime.now(tz=ZoneInfo("America/New_York")).time()
+    # response.headers["X-server-time"] = server_time
+    response.headers["X-server-time"] = datetime.now(tz=ZoneInfo("America/New_York")).time()
     return found_student
 
 
