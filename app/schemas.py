@@ -6,7 +6,6 @@ from pydantic import BaseModel
 class StudentBase(BaseModel):
     first_name: str
     last_name: str | None = None
-    is_present: bool = False
     student_number: str
     period: int
 
@@ -18,6 +17,7 @@ class StudentBaseCreate(StudentBase):
 class Student(StudentBase):
     id: int
     last_modified: datetime | None = None
+    is_present: bool = False
     points: int = 0
 
     class Config:
