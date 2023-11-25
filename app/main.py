@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import JSONResponse, Response
 
-from app import crud
+from app import crud, schemas
 from app.database import SessionLocal
 from app.exception import ClassroomTrackerException
 from app.schemas import Student
@@ -126,8 +126,8 @@ async def scan_student(student_id: int, response: Response, db: Session = Depend
     return found_student
 
 
-@app.post("/students")
-async def create_students(new_student: Student, db: Session = Depends(get_db)) -> Student:
+@app.post("/students", response_model=schemas.Student)
+async def create_students(new_student: schemas.StudentBaseCreate, db: Session = Depends(get_db)):
     created_student = crud.create_student(db, new_student)
     return created_student
 
