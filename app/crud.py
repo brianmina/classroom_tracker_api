@@ -25,3 +25,6 @@ def create_scan(db: Session, student_id: int):
     db.refresh(db_scan)
     return db_scan.scanned_student
 
+
+def create_student(db, new_student):
+    return None

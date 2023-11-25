@@ -126,6 +126,12 @@ async def scan_student(student_id: int, response: Response, db: Session = Depend
     return found_student
 
 
+@app.post("/students")
+async def create_students(new_student: Student, db: Session = Depends(get_db)) -> Student:
+    created_student = crud.create_student(db, new_student)
+    return created_student
+
+
 @app.get("/readiness")
 def is_ready() :
     return Response('', status_code=200)
