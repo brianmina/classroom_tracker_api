@@ -1,7 +1,7 @@
 from datetime import date, time, datetime
 from zoneinfo import ZoneInfo
 
-from sqlalchemy import Column, Integer, String, ForeignKey, Date, DateTime, select, func, and_, FetchedValue
+from sqlalchemy import Column, Integer, String, ForeignKey, Date, DateTime, select, func, and_, FetchedValue, BigInteger
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, Mapped, column_property, object_session
 
@@ -10,7 +10,7 @@ from .database import Base
 
 class CodeScan(Base):
     __tablename__ = "code_scans"
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(BigInteger, primary_key=True, index=True)
     student = Column(Integer, ForeignKey("students.id"))
     timestamp = Column(DateTime, server_default=FetchedValue())
     date = Column(Date, index=True, server_default=FetchedValue())
@@ -38,7 +38,7 @@ def check_is_period(period: int):
 
 class Student(Base):
     __tablename__ = "students"
-    id = Column(Integer, primary_key=True, index=True)
+    id = Column(BigInteger, primary_key=True, index=True)
     first_name = Column(String)
     last_name = Column(String)
     points = Column(Integer)
