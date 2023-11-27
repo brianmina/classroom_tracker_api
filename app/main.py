@@ -135,30 +135,8 @@ async def create_students(new_student: schemas.StudentBaseCreate, db: Session = 
 @app.get("/readiness")
 def is_ready() :
     return Response('', status_code=200)
-    # if not found_student:
-    #     return JSONResponse(
-    #         status_code=404,
-    #         content={
-    #             "message": f"student id {student_id} not found"
-    #         }
-    #     )
 
 
-# create a function that takes an integer (number of timestamps) and returns a boolean (is_present)
-# based on the number of timestamps
-# e.g. 1 timestamp ->  student entered -> return True
-# e.g. 0 timestamps -> return False
-# def find_student(number_of_timestamps: int) -> bool:
-#     pass
-
-
-# def print_name(student: Student):
-#     #print student name from student object
-#     pass
-
-# if __name__ == "__main__":
-#     bob = Student(id=4, first_name="bob", last_name="jones", is_present=False)
-#     print_name(bob)
 class Color(str, Enum):
     red = 'red'
     blue = 'blue'

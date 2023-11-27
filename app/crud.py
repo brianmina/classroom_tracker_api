@@ -33,3 +33,9 @@ def create_student(db: Session, new_student: schemas.StudentBaseCreate) -> model
     db.commit()
     db.refresh(db_student)
     return db_student
+
+
+def delete_student(db: Session, student_id: int):
+    # TODO: implement
+    pass
+
